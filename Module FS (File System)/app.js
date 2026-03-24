@@ -6,7 +6,7 @@
  *  hoặc import fs from 'fs'; // Đối với ES Modules
  */
 
-const fs = require('fs');
+// const fs = require('fs');
 
 /**
  * a. Đọc file
@@ -81,6 +81,67 @@ const fs = require('fs');
 // const reusult = fs.unlinkSync('./test.txt');
 // console.log(reusult);
 
-fs.unlink("./test.txt", (err) => {
-    console.log(err);
-})
+// fs.unlink("./test.txt", (err) => {
+//     console.log(err);
+// })
+
+
+// 3. Cách tiếp cận hiện đại: FS Promises
+
+/**
+ * thay vì dùng "callback" (dẫn đến callback Hell), Nodejs cung cấp phiên bản Promise để bạn có thể dùng async/await,
+ * giúp code trông sạch sẽ như code đồng bộ nhưng vẫn giữ được hiệu năng của bất đồng bộ
+ */
+
+const fs = require("fs/promises");
+
+// const data = fs.readFile('./test.txt');
+// data
+//     .then(data => {
+//         console.log(data.toString());
+//     })
+
+
+// const readFile = async () => {
+//     try {
+//         const dataBuffer = await fs.readFile('./test.txt'); 
+//         const data = dataBuffer.toString();
+//         console.log(data);
+//     } catch (error) {
+//         console.log(error);
+//     }
+// }
+
+// readFile();
+
+// const writeFile = async(content) => {
+//     try {
+//         await fs.writeFile('./test.txt1', content);
+//     } catch (error) {
+//         console.log(error);
+//     }
+// }
+
+// writeFile("/n Nội dung mới")
+
+// const appendFile = async(content) => {
+//     try {
+//         await fs.appendFile("test2.txt", content)
+//     } catch (error) {
+//         console.log(error);
+//     }
+// }
+
+// appendFile("new content");
+
+// lưu ý: appendFile vs writeFile nếu file k tồn tại thì sẽ tạo ra file mới còn với readFile thì sẽ báo lỗi
+
+const deleteFile = async () => {
+    try {
+        fs.unlink("./test3.txt")
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+deleteFile();
