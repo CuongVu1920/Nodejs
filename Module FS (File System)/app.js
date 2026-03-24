@@ -63,8 +63,24 @@ const fs = require('fs');
 
 // fs.appendFileSync('./test.txt', '\nĐây là Nội dung mới');
 
-fs.appendFile("./test.txt", "\n Nội dung mới bất đồng ahihi", (err) => {
-    if (err) throw(err);
+// fs.appendFile("./test.txt", "\n Nội dung mới bất đồng ahihi", (err) => {
+//     if (err) throw(err);
 
-    console.log("Okela");
+//     console.log("Okela");
+// })
+
+/**
+ * d. Xóa file (Deleting files)
+ *  - đồng bộ: fs.unlinkSync('./test.txt')
+ *  - bất đồng bộ
+ *      fs.unlink('./test.txt', (err) => {
+ *          log(err)
+ *      })
+ */
+
+// const reusult = fs.unlinkSync('./test.txt');
+// console.log(reusult);
+
+fs.unlink("./test.txt", (err) => {
+    console.log(err);
 })
