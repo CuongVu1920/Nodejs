@@ -23,10 +23,29 @@ const fs = require('fs');
 // const data = fs.readFileSync("./test.txt", 'utf8');
 // console.log(data);
 
-fs.readFile("./test.txt", "utf8", (err, data) => {
-    console.log(err);
+// fs.readFile("./test.txt", "utf8", (err, data) => {
+//     console.log(err);
     
-    console.log(data);
-});
+//     console.log(data);
+// });
 
+/**
+ * b. Ghi file
+ *  Lưu ý: nếu file đã tồn tại, các hàm này sẽ ghi đè nội dung cũ
+ *    - Đồng bộ: 
+ *          fs.writeFileSync('./output.txt', 'Nội dung mới');
+ *    - Bất đồng bộ:
+ *          fs.writeFile('./output.txt', 'Nội dung mới', (err) => {
+ *              if (err) throw err;
+ *              
+ *              log(ghi file thành công)
+ *          })
+ */
 
+// const result = fs.writeFileSync('./test.txt', "Nội dung mới");
+
+// console.log(result); // undefined
+
+fs.writeFile("./test.txt", "Hello Cuong Vu", (err) => {
+    console.log(err);
+})
