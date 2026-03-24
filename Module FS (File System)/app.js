@@ -46,6 +46,25 @@ const fs = require('fs');
 
 // console.log(result); // undefined
 
-fs.writeFile("./test.txt", "Hello Cuong Vu", (err) => {
-    console.log(err);
+// fs.writeFile("./test.txt", "Hello Cuong Vu", (err) => {
+//     console.log(err);
+// })
+
+
+/**
+ * c. Thêm nội dung vào file
+ *  - Nếu bạn không muốn ghi đè mà chỉ muốn nối thêm nội dung vào cuối file.
+ *      fs.appendFile("./test.txt", '\n Đây là dòng nối thêm.', (err) => {
+ *          if (err) throw err;
+ * 
+ *          log("đã nối thêm!")
+ *      })
+ */
+
+// fs.appendFileSync('./test.txt', '\nĐây là Nội dung mới');
+
+fs.appendFile("./test.txt", "\n Nội dung mới bất đồng ahihi", (err) => {
+    if (err) throw(err);
+
+    console.log("Okela");
 })
