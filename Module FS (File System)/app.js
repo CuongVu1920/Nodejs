@@ -93,7 +93,7 @@
  * giúp code trông sạch sẽ như code đồng bộ nhưng vẫn giữ được hiệu năng của bất đồng bộ
  */
 
-const fs = require("fs/promises");
+// const fs = require("fs/promises");
 
 // const data = fs.readFile('./test.txt');
 // data
@@ -136,12 +136,36 @@ const fs = require("fs/promises");
 
 // lưu ý: appendFile vs writeFile nếu file k tồn tại thì sẽ tạo ra file mới còn với readFile thì sẽ báo lỗi
 
-const deleteFile = async () => {
-    try {
-        fs.unlink("./test3.txt")
-    } catch (error) {
-        console.log(error);
-    }
-}
+// const deleteFile = async () => {
+//     try {
+//         fs.unlink("./test3.txt")
+//     } catch (error) {
+//         console.log(error);
+//     }
+// }
 
-deleteFile();
+// deleteFile();
+
+/**
+ * 4. Một số hàm hữu ích khác
+ *  - fs.rename(): đổi tên hoặc di chuyển file
+ *  - fs.mkdir(): tạo thư mục mới
+ *  - fs.readdir(); đọc danh sách các file trong một thư mục
+ *  - fs.exits() (đã cũ) => Hiện nên dùng fs.access() hoặc fs.start() để kiểm tra file có tồn tại hay k.
+ * 
+ * Lưu ý quan trọng: 
+ *  - luôn chỉ định bảng mã "utf8" khi đọc file văn bản, nếu k Nodejs sẽ trả về một đối tượng Buffer (dữ liệu nhị phân) mà bạn sẽ 
+ *    k đọc được bằng mắt thường.
+ */
+
+const fs = require("fs/promises");
+
+// const renameFile = async () => {
+//     try {
+//         await fs.rename('new-name.txt', './utils/new-name.txt')
+//     } catch (error) {
+//         console.log(error);
+//     }
+// }
+
+// renameFile();
