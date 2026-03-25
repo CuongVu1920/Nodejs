@@ -170,13 +170,29 @@ const fs = require("fs/promises");
 
 // renameFile();
 
-const createFolder = async () => {
+// const createFolder = async () => {
+//     try {
+//         await fs.mkdir('data');
+//         await fs.mkdir('data/sub')
+//     } catch (error) {
+//         console.log(error);
+//     }
+// }
+
+// createFolder();
+
+const readDir = async () => {
     try {
-        await fs.mkdir('data');
-        await fs.mkdir('data/sub')
+        const listFile = await fs.readdir('utils');
+        console.log(listFile);
+
+        listFile.forEach(async (iteam) => {
+            const info = await fs.stat(`./utils/${iteam}`);
+            console.log(`${iteam} = `, info.isDirectory());
+        });
     } catch (error) {
         console.log(error);
     }
 }
 
-createFolder();
+readDir();
