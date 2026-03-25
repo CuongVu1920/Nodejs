@@ -181,18 +181,30 @@ const fs = require("fs/promises");
 
 // createFolder();
 
-const readDir = async () => {
-    try {
-        const listFile = await fs.readdir('utils');
-        console.log(listFile);
+// const readDir = async () => {
+//     try {
+//         const listFile = await fs.readdir('utils');
+//         console.log(listFile);
 
-        listFile.forEach(async (iteam) => {
-            const info = await fs.stat(`./utils/${iteam}`);
-            console.log(`${iteam} = `, info.isDirectory());
-        });
+//         listFile.forEach(async (iteam) => {
+//             const info = await fs.stat(`./utils/${iteam}`);
+//             console.log(`${iteam} = `, info.isDirectory());
+//         });
+//     } catch (error) {
+//         console.log(error);
+//     }
+// }
+
+// readDir();
+
+const checkFileExist = async () => {
+    try {
+        const info = await fs.access("./utils/main.txt");
+        console.log(info);
+        
     } catch (error) {
         console.log(error);
     }
 }
 
-readDir();
+checkFileExist();
