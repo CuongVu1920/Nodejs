@@ -169,3 +169,14 @@ const fs = require("fs/promises");
 // }
 
 // renameFile();
+
+const createFolder = async () => {
+    try {
+        await fs.mkdir('data');
+        await fs.mkdir('data/sub')
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+createFolder();
