@@ -2,14 +2,11 @@ import { Request, Response } from "express";
 import { CreateOrder } from "../mail/create-order.mail";
 import { MailData } from "../types/mail.type";
 import { pubSubRedis } from "../utils/redis";
-import { rabbitmqClient } from "../utils/rabbitmq";
-import { ConfirmChannel } from "amqplib";
 
 // import { redisClient } from "../utils/redis";
 // const redis = redisClient.getInstance();
 
 const pubSubClient = pubSubRedis.getInstance();
-const rabbitmq = rabbitmqClient.getInstance();
 
 export const HomeController = {
   index: async (req: Request, res: Response) => {
@@ -67,38 +64,6 @@ export const HomeController = {
 
     res.json({
       message: "Redis test route",
-    });
-  },
-  testQueue: async (req: Request, res: Response) => {
-    // Producer
-    // 1. assertQueue(tên queue): tạo queue nếu chưa tồn tại
-    // 2. sendToQueue(tên queue, message): gửi message vào queue
-
-    const value = req.query.value;
-
-    const channelWrapper = rabbitmq.getOrCreateChannel(
-      "TASK_PRODUCER",
-      async (channel: ConfirmChannel) => {
-        await channel.assertQueue("task-queue", { durable: true });
-      },
-    );
-
-    if (channelWrapper) {
-      const message = {
-        value,
-      };
-      channelWrapper.sendToQueue(
-        "task-queue",
-        Buffer.from(JSON.stringify(message)),
-        {
-          persistent: true,
-        },
-      );
-      console.log("Đã gửi message task:", message);
-    }
-
-    res.json({
-      message: "Queue test route",
     });
   },
 };

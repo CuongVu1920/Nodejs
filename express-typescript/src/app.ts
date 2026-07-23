@@ -2,7 +2,6 @@ import "dotenv/config";
 import express, { Application } from "express";
 import path from "path";
 import expressLayouts from "express-ejs-layouts";
-import "./consumers/index.consumer";
 import routerWeb from "./routes/web.route";
 import "./schedulers";
 import "./subscribers/order.subscribe";
@@ -14,6 +13,9 @@ import routerApi from "./routes/api.route";
 import session from "express-session";
 import flash from "connect-flash";
 import morgan from "morgan";
+import { rabbitmqClient } from "./utils/rabbitmq";
+const rabbitmq = rabbitmqClient.getInstance();
+console.log("RabbitMQ client initialized:", rabbitmq);
 const app: Application = express();
 const port: number = 3000;
 

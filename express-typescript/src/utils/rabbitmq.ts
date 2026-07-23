@@ -1,54 +1,27 @@
-import { ConfirmChannel } from "amqplib";
+import amqp, { Channel, ChannelModel } from "amqplib";
 import { rabbitConfig } from "../configs/rabbit.config";
-import amqp, {
-  AmqpConnectionManager,
-  ChannelWrapper,
-} from "amqp-connection-manager";
 
-type RabbitMQClient = {
-  getInstance: () => RabbitMQClient;
-  connection: AmqpConnectionManager | null;
-  channels: Map<string, ChannelWrapper>;
-  getOrCreateChannel: (
-    name: string,
-    setup: (channel: ConfirmChannel) => Promise<void>,
-  ) => ChannelWrapper | undefined;
+type RabbitMqClientType = {
+  connection: Promise<ChannelModel | void> | null;
+  channel: Channel | null;
+  getInstance: () => RabbitMqClientType;
 };
 
-export const rabbitmqClient: RabbitMQClient = {
+export const rabbitmqClient: RabbitMqClientType = {
   connection: null,
-  channels: new Map(),
+  channel: null,
   getInstance() {
-    const url = `amqp://${rabbitConfig.username}:${rabbitConfig.password}@${rabbitConfig.host}:${rabbitConfig.port}`;
+    const url = `amqp://${rabbitConfig.username}:${rabbitConfig.password}@${rabbitConfig.host}:${rabbitConfig.port}/`;
 
     if (!this.connection) {
-      this.connection = amqp.connect([url]);
-
-      this.connection.on("connect", () => {
-        console.log("Connected to RabbitMQ");
-      });
-      this.connection.on("disconnect", () => {
-        console.error("Disconnected from RabbitMQ");
+      this.connection = amqp.connect(url).then(async (conn) => {
+        if (conn) {
+          this.channel = await conn.createChannel();
+        }
+        console.log("RabbitMQ connection established successfully.");
       });
     }
+
     return this;
-  },
-
-  getOrCreateChannel(name, setup) {
-    if (this.channels.has(name)) {
-      // channels.has(name) kiểm tra xem channel đã tồn tại chưa? nếu có trả về true, nếu chưa có trả về false
-      return this.channels.get(name);
-    }
-
-    const channelWrapper = this.connection?.createChannel({
-      name,
-      setup,
-    });
-
-    if (channelWrapper) {
-      this.channels.set(name, channelWrapper);
-    }
-
-    return channelWrapper;
   },
 };
