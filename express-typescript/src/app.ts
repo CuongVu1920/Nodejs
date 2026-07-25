@@ -5,6 +5,7 @@ import expressLayouts from "express-ejs-layouts";
 import routerWeb from "./routes/web.route";
 import "./schedulers";
 import "./subscribers/order.subscribe";
+import "./consumers/task.consumer";
 import {
   errorHandlerLingMiddleware,
   notFoundMiddleware,
@@ -13,9 +14,6 @@ import routerApi from "./routes/api.route";
 import session from "express-session";
 import flash from "connect-flash";
 import morgan from "morgan";
-import { rabbitmqClient } from "./utils/rabbitmq";
-const rabbitmq = rabbitmqClient.getInstance();
-console.log("RabbitMQ client initialized:", rabbitmq);
 const app: Application = express();
 const port: number = 3000;
 

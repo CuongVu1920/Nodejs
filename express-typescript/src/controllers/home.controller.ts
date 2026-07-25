@@ -2,9 +2,8 @@ import { Request, Response } from "express";
 import { CreateOrder } from "../mail/create-order.mail";
 import { MailData } from "../types/mail.type";
 import { pubSubRedis } from "../utils/redis";
-
-// import { redisClient } from "../utils/redis";
-// const redis = redisClient.getInstance();
+import { rabbitmqClient } from "../utils/rabbitmq";
+const rabittmq = rabbitmqClient.getInstance();
 
 const pubSubClient = pubSubRedis.getInstance();
 
@@ -64,6 +63,24 @@ export const HomeController = {
 
     res.json({
       message: "Redis test route",
+    });
+  },
+  testMQ: async (req: Request, res: Response) => {
+    // quy trình gửi message đến RabbitMQ
+
+    // Producer - gửi message đến RabbitMQ
+
+    // 1. assert queue (tạo queue nếu chưa tồn tại) - assertQueue(tên queue, { durable: true })
+    // 2. send message đến queue - sendToQueue(tên queue, Buffer.from(message), { persistent: true })
+
+    await rabittmq.channel?.assertQueue("task-queue-okela", { durable: true }); // durable: true => queue sẽ tồn tại ngay cả khi RabbitMQ server restart
+    rabittmq.channel?.sendToQueue(
+      "task-queue-okela",
+      Buffer.from("Hello from RabbitMQ!"),
+      { persistent: true },
+    ); // persistent: true => message sẽ tồn tại ngay cả khi RabbitMQ server restart
+    res.json({
+      message: "MQ test route",
     });
   },
 };
