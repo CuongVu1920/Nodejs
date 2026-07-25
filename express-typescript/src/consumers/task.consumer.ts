@@ -1,13 +1,19 @@
+import { ConfirmChannel } from "amqplib";
 import { rabbitmqClient } from "../utils/rabbitmq";
 const rabittmq = rabbitmqClient.getInstance();
 
+const channelWrapper = rabittmq.createChannel(
+  "Task-Channel",
+  (channel: ConfirmChannel) => {
+    return channel.assertQueue("task-queue-okela", { durable: true });
+  },
+);
+
 const taskConsumber = async () => {
-  await rabittmq.connection; // đảm bảo rằng kết nối đã được thiết lập trước khi tiếp tục
-  await rabittmq.channel?.assertQueue("task-queue-okela", { durable: true });
-  rabittmq.channel?.consume("task-queue-okela", (msg) => {
+  channelWrapper?.consume("task-queue-okela", (msg) => {
     if (msg) {
       console.log("Received message from RabbitMQ:", msg.content.toString());
-      rabittmq.channel?.ack(msg); // ack để xác nhận rằng message đã được xử lý thành công và có thể xóa khỏi queue
+      channelWrapper?.ack(msg); // ack để xác nhận rằng message đã được xử lý thành công và có thể xóa khỏi queue
     }
   });
 };

@@ -3,6 +3,7 @@ import { CreateOrder } from "../mail/create-order.mail";
 import { MailData } from "../types/mail.type";
 import { pubSubRedis } from "../utils/redis";
 import { rabbitmqClient } from "../utils/rabbitmq";
+import { ConfirmChannel } from "amqplib";
 const rabittmq = rabbitmqClient.getInstance();
 
 const pubSubClient = pubSubRedis.getInstance();
@@ -72,9 +73,14 @@ export const HomeController = {
 
     // 1. assert queue (tạo queue nếu chưa tồn tại) - assertQueue(tên queue, { durable: true })
     // 2. send message đến queue - sendToQueue(tên queue, Buffer.from(message), { persistent: true })
+    const channelWrapper = rabittmq.createChannel(
+      "Task-Channel",
+      (channel: ConfirmChannel) => {
+        return channel.assertQueue("task-queue-okela", { durable: true });
+      },
+    );
 
-    await rabittmq.channel?.assertQueue("task-queue-okela", { durable: true }); // durable: true => queue sẽ tồn tại ngay cả khi RabbitMQ server restart
-    rabittmq.channel?.sendToQueue(
+    channelWrapper?.sendToQueue(
       "task-queue-okela",
       Buffer.from("Hello from RabbitMQ!"),
       { persistent: true },

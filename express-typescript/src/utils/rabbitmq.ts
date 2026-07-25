@@ -1,27 +1,39 @@
-import amqp, { Channel, ChannelModel } from "amqplib";
+import amqp, {
+  AmqpConnectionManager,
+  ChannelWrapper,
+} from "amqp-connection-manager";
 import { rabbitConfig } from "../configs/rabbit.config";
+import { ConfirmChannel, Replies } from "amqplib";
 
 type RabbitMqClientType = {
-  connection: Promise<ChannelModel | void> | null;
-  channel: Channel | null;
   getInstance: () => RabbitMqClientType;
+  connection: AmqpConnectionManager | null;
+  createChannel: (
+    name: string,
+    setup: (channel: ConfirmChannel) => Promise<Replies.AssertQueue>,
+  ) => ChannelWrapper | undefined;
 };
 
 export const rabbitmqClient: RabbitMqClientType = {
   connection: null,
-  channel: null,
   getInstance() {
     const url = `amqp://${rabbitConfig.username}:${rabbitConfig.password}@${rabbitConfig.host}:${rabbitConfig.port}/`;
+    this.connection = amqp.connect([url]);
+    this.connection.on("connect", () => {
+      console.log("Connected to RabbitMQ");
+    });
 
-    if (!this.connection) {
-      this.connection = amqp.connect(url).then(async (conn) => {
-        if (conn) {
-          this.channel = await conn.createChannel();
-        }
-        console.log("RabbitMQ connection established successfully.");
-      });
-    }
+    this.connection.on("disconnect", (params) => {
+      console.error("Disconnected from RabbitMQ", params.err.stack);
+    });
 
     return this;
+  },
+
+  createChannel(name, setup) {
+    return this.connection?.createChannel({
+      name,
+      setup,
+    });
   },
 };
