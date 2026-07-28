@@ -8,7 +8,8 @@ import { ConfirmChannel, Replies } from "amqplib";
 type RabbitMqClientType = {
   getInstance: () => RabbitMqClientType;
   connection: AmqpConnectionManager | null;
-  createChannel: (
+  channels: Map<string, ChannelWrapper>;
+  getOrCreateChannel: (
     name: string,
     setup: (channel: ConfirmChannel) => Promise<Replies.AssertQueue>,
   ) => ChannelWrapper | undefined;
@@ -16,7 +17,12 @@ type RabbitMqClientType = {
 
 export const rabbitmqClient: RabbitMqClientType = {
   connection: null,
+  channels: new Map(),
   getInstance() {
+    if (this.connection) {
+      return this;
+    }
+
     const url = `amqp://${rabbitConfig.username}:${rabbitConfig.password}@${rabbitConfig.host}:${rabbitConfig.port}/`;
     this.connection = amqp.connect([url]);
     this.connection.on("connect", () => {
@@ -30,10 +36,20 @@ export const rabbitmqClient: RabbitMqClientType = {
     return this;
   },
 
-  createChannel(name, setup) {
-    return this.connection?.createChannel({
+  getOrCreateChannel(name, setup) {
+    if (this.channels.has(name)) {
+      return this.channels.get(name);
+    }
+
+    const channelWrapper = this.connection?.createChannel({
       name,
       setup,
     });
+
+    if (channelWrapper) {
+      this.channels.set(name, channelWrapper);
+    }
+
+    return channelWrapper;
   },
 };

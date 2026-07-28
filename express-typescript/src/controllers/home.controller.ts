@@ -73,7 +73,7 @@ export const HomeController = {
 
     // 1. assert queue (tạo queue nếu chưa tồn tại) - assertQueue(tên queue, { durable: true })
     // 2. send message đến queue - sendToQueue(tên queue, Buffer.from(message), { persistent: true })
-    const channelWrapper = rabittmq.createChannel(
+    const channelWrapper = rabittmq.getOrCreateChannel(
       "Task-Channel",
       (channel: ConfirmChannel) => {
         return channel.assertQueue("task-queue-okela", { durable: true });
@@ -84,7 +84,7 @@ export const HomeController = {
       "task-queue-okela",
       Buffer.from("Hello from RabbitMQ!"),
       { persistent: true },
-    ); // persistent: true => message sẽ tồn tại ngay cả khi RabbitMQ server restart
+    );
     res.json({
       message: "MQ test route",
     });
