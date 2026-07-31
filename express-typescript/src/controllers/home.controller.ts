@@ -74,17 +74,24 @@ export const HomeController = {
     // 1. assert queue (tạo queue nếu chưa tồn tại) - assertQueue(tên queue, { durable: true })
     // 2. send message đến queue - sendToQueue(tên queue, Buffer.from(message), { persistent: true })
     const channelWrapper = rabittmq.getOrCreateChannel(
-      "Task-Channel",
+      "TASK_PRODUCER_CHANNEL",
       (channel: ConfirmChannel) => {
         return channel.assertQueue("task-queue-okela", { durable: true });
       },
     );
 
-    channelWrapper?.sendToQueue(
+    const message = "Hello from RabbitMQ! - Random number: " + Math.random();
+
+    console.log("Đang gửi message đến RabbitMQ: ", message);
+
+    await channelWrapper?.sendToQueue(
       "task-queue-okela",
-      Buffer.from("Hello from RabbitMQ!"),
+      Buffer.from(message),
       { persistent: true },
     );
+
+    console.log("Đã gửi message đến RabbitMQ: ", message);
+
     res.json({
       message: "MQ test route",
     });
