@@ -76,8 +76,8 @@ export const HomeController = {
     const value = req.query.value as string;
     const channelWrapper = rabittmq.getOrCreateChannel(
       "TASK_PRODUCER_CHANNEL",
-      (channel: ConfirmChannel) => {
-        return channel.assertQueue("task-queue-okela", { durable: true });
+      async (channel: ConfirmChannel) => {
+        await channel.assertQueue("task-queue-okela", { durable: true });
       },
     );
 

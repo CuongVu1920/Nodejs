@@ -5,7 +5,7 @@ import expressLayouts from "express-ejs-layouts";
 import routerWeb from "./routes/web.route";
 import "./schedulers";
 import "./subscribers/order.subscribe";
-import "./consumers/index.consumer";
+// import "./consumers/index.consumer";
 import {
   errorHandlerLingMiddleware,
   notFoundMiddleware,

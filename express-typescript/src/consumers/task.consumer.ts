@@ -1,56 +1,53 @@
-import { ConfirmChannel } from "amqplib";
+import { ConfirmChannel, ConsumeMessage } from "amqplib";
 import { rabbitmqClient } from "../utils/rabbitmq";
-const rabittmq = rabbitmqClient.getInstance();
 
-const channelWrapper = rabittmq.getOrCreateChannel(
-  "TASK_CONSUMER_CHANNEL",
-  (channel: ConfirmChannel) => {
-    channel.prefetch(1);
-    return channel.assertQueue("task-queue-okela", { durable: true });
-  },
-);
-
-let count = 0;
-const taskConsumber = async () => {
-  channelWrapper?.consume("task-queue-okela", (msg) => {
-    if (msg) {
-      const { value } = JSON.parse(msg.content.toString());
-      console.log("Đang xử lý message:", value);
-      setTimeout(() => {
-        if (value !== "admin@gmail.com") {
-          channelWrapper?.ack(msg);
-          console.log("Đã xử lý xong message và ack:", value);
-        } else {
-          if (count < 1) {
-            channelWrapper?.nack(msg, false, true);
-            console.log(
-              "Đã xử lý xong message nhưng không thành công và nack:",
-              value,
-            );
-          } else {
-            channelWrapper?.nack(msg, false, false);
-            console.log(
-              "Đã xử lý xong message nhưng không thành công và nack, message sẽ bị loại bỏ:",
-              value,
-            );
-          }
-          count++;
-        }
-      }, 2000);
+const taskConsumber = {
+  // method xử lý công việc
+  onOrderCreated: async (
+    msg: ConsumeMessage | null,
+    channel: ConfirmChannel,
+  ) => {
+    if (!msg) {
+      return;
     }
-  });
+
+    try {
+      const content = JSON.parse(msg.content.toString());
+      console.log("Đang xử lý message:", content.value);
+      channel.ack(msg);
+    } catch (error) {
+      console.error("Lỗi khi xử lý message:", error);
+      channel.nack(msg, false, false);
+    }
+  },
+  // onOrderCancelled: async (
+  //   msg: ConsumeMessage | null,
+  //   channel: ConfirmChannel,
+  // ) => {
+  //   // logic
+  // },
+  async setup() {
+    const rabittmq = rabbitmqClient.getInstance();
+    rabittmq.getOrCreateChannel(
+      "TASK_CONSUMER_CHANNEL",
+      async (channel: ConfirmChannel) => {
+        await channel.prefetch(1);
+        await channel.assertQueue("task-queue-okela", { durable: true });
+        await channel.consume("task-queue-okela", async (msg) => {
+          await this.onOrderCreated(msg, channel);
+        });
+
+        // await channel.assertQueue("task-queue-2", { durable: true });
+        // await channel.consume("task-queue-2", async (msg) => {
+        //   await this.onOrderCancelled(msg, channel);
+        // });
+      },
+    );
+  },
 };
 
-channelWrapper?.on("connect", () => {
-  console.log("Connected to RabbitMQ channelWrapper: ", channelWrapper.name);
-});
-
-channelWrapper?.on("error", (err) => {
-  console.error("Error in RabbitMQ channel:", err);
-});
-
-taskConsumber().catch((error) => {
-  console.error("Error in task consumer:", error);
+taskConsumber.setup().catch((error) => {
+  console.error("Error in task consumer setup:", error);
 });
 
 /**

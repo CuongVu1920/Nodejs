@@ -3,7 +3,7 @@ import amqp, {
   ChannelWrapper,
 } from "amqp-connection-manager";
 import { rabbitConfig } from "../configs/rabbit.config";
-import { ConfirmChannel, Replies } from "amqplib";
+import { ConfirmChannel } from "amqplib";
 
 type RabbitMqClientType = {
   getInstance: () => RabbitMqClientType;
@@ -11,7 +11,7 @@ type RabbitMqClientType = {
   channels: Map<string, ChannelWrapper>;
   getOrCreateChannel: (
     name: string,
-    setup: (channel: ConfirmChannel) => Promise<Replies.AssertQueue>,
+    setup: (channel: ConfirmChannel) => Promise<void>,
   ) => ChannelWrapper | undefined;
 };
 
