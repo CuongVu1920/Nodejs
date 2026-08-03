@@ -57,6 +57,8 @@ taskConsumber.setup().catch((error) => {
  * // nack - nghĩa là xác nhận rằng message đã được xử lý nhưng không thành công và có thể xóa khỏi queue,
  * nếu không nack thì message sẽ vẫn còn trong queue và sẽ được gửi lại cho consumer khác hoặc consumer hiện tại khi nó sẵn sàng nhận message tiếp theo
  *
+ * // exclusive queue - nghĩa là queue chỉ có thể được sử dụng bởi 1 connection duy nhất, nếu connection đó bị đóng thì queue sẽ bị xóa
+ *
  * // Consumber prefetch - nghĩa là số lượng message mà consumer có thể nhận và xử lý cùng một lúc,
  * nếu prefetch = 1 thì consumer sẽ chỉ nhận 1 message tại một thời điểm, nếu prefetch = 5 thì consumer sẽ nhận tối đa 5 message cùng một lúc
  * channelWrapper?.prefetch(1);

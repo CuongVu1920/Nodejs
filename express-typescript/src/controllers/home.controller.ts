@@ -68,35 +68,72 @@ export const HomeController = {
   },
   testMQ: async (req: Request, res: Response) => {
     // quy trình gửi message đến RabbitMQ
-
     // Producer - gửi message đến RabbitMQ
-
     // 1. assert queue (tạo queue nếu chưa tồn tại) - assertQueue(tên queue, { durable: true })
     // 2. send message đến queue - sendToQueue(tên queue, Buffer.from(message), { persistent: true })
-    const value = req.query.value as string;
+    // const value = req.query.value as string;
+    // const channelWrapper = rabittmq.getOrCreateChannel(
+    //   "TASK_PRODUCER_CHANNEL",
+    //   async (channel: ConfirmChannel) => {
+    //     await channel.assertQueue("task-queue-okela", { durable: true });
+    //   },
+    // );
+    // const message = {
+    //   value,
+    // };
+    // console.log("Đang gửi message đến RabbitMQ: ", message);
+    // await channelWrapper?.sendToQueue(
+    //   "task-queue-okela",
+    //   Buffer.from(JSON.stringify(message)),
+    //   { persistent: true },
+    // );
+    // console.log("Đã gửi message đến RabbitMQ: ", message);
+    // res.json({
+    //   message: "MQ test route",
+    // });
+
+    // producer direct exchange
+    const logs = [
+      {
+        severity: "info",
+        message: "This is an info log message",
+      },
+      {
+        severity: "error",
+        message: "This is an error log message",
+      },
+      {
+        severity: "warning",
+        message: "This is a warning log message",
+      },
+    ];
+
+    const EX = "logs_redirect_exchange";
     const channelWrapper = rabittmq.getOrCreateChannel(
-      "TASK_PRODUCER_CHANNEL",
+      "LOG_CHANNEL_PRODUCER",
       async (channel: ConfirmChannel) => {
-        await channel.assertQueue("task-queue-okela", { durable: true });
+        await channel.assertExchange(EX, "direct", {
+          durable: true,
+        });
       },
     );
 
-    const message = {
-      value,
-    };
-
-    console.log("Đang gửi message đến RabbitMQ: ", message);
-
-    await channelWrapper?.sendToQueue(
-      "task-queue-okela",
-      Buffer.from(JSON.stringify(message)),
-      { persistent: true },
-    );
-
-    console.log("Đã gửi message đến RabbitMQ: ", message);
+    logs.forEach((log) => {
+      channelWrapper?.publish(
+        EX,
+        log.severity, // routing key
+        Buffer.from(JSON.stringify(log)),
+        {
+          persistent: true,
+        },
+      );
+      console.log("Đã gửi log đến RabbitMQ: ", log.message);
+    });
 
     res.json({
       message: "MQ test route",
     });
   },
 };
+
+// channel.publish nghĩa là gửi message đến exchange, và exchange sẽ dựa vào routing key để quyết định gửi message đến queue nào.
