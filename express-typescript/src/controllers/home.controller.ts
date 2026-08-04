@@ -147,6 +147,29 @@ export const HomeController = {
       message: "MQ order test route",
     });
   },
+  testMQFanout: async (req: Request, res: Response) => {
+    // Fanout exchange sẽ gửi message đến tất cả các queue đã bind với exchange này, không quan tâm đến routing key
+    const EX = "news_fanout_exchange";
+    const msg = "giảm giá 50% cho tất cả các đơn hàng trong ngày hôm nay";
+
+    const channelWrapper = rabittmq.getOrCreateChannel(
+      "NEWS_FANOUT_CHANNEL_PRODUCER",
+      async (channel: ConfirmChannel) => {
+        await channel.assertExchange(EX, "fanout", {
+          durable: false,
+        });
+      },
+    );
+
+    channelWrapper?.publish(EX, "", Buffer.from(msg), {
+      persistent: true,
+    });
+    console.log("Đã gửi tin tức đến RabbitMQ: ", msg);
+
+    res.json({
+      message: "MQ fanout test route",
+    });
+  },
 };
 
 // channel.publish nghĩa là gửi message đến exchange, và exchange sẽ dựa vào routing key để quyết định gửi message đến queue nào.

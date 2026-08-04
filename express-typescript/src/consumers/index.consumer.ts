@@ -3,5 +3,7 @@ dotenv.config();
 
 // import "./task.consumer";
 // import "./log.consumer";
-import "./email.consumer";
-import "./inventory.consumer";
+// import "./email.consumer";
+// import "./inventory.consumer";
+import "./news1.consumer";
+import "./news2.consumer";

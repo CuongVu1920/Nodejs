@@ -35,6 +35,7 @@ router.get("/test-redis", HomeController.testRedis);
 // Test route for MQ
 router.get("/test-mq", HomeController.testMQ);
 router.get("/test-mq-order", HomeController.testMQOrder);
+router.get("/test-mq-fanout", HomeController.testMQFanout);
 
 router.use("/admin", authMiddleware, adminRouter);
 
