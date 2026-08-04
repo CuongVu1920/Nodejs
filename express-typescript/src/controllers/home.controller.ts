@@ -71,26 +71,6 @@ export const HomeController = {
     // Producer - gửi message đến RabbitMQ
     // 1. assert queue (tạo queue nếu chưa tồn tại) - assertQueue(tên queue, { durable: true })
     // 2. send message đến queue - sendToQueue(tên queue, Buffer.from(message), { persistent: true })
-    // const value = req.query.value as string;
-    // const channelWrapper = rabittmq.getOrCreateChannel(
-    //   "TASK_PRODUCER_CHANNEL",
-    //   async (channel: ConfirmChannel) => {
-    //     await channel.assertQueue("task-queue-okela", { durable: true });
-    //   },
-    // );
-    // const message = {
-    //   value,
-    // };
-    // console.log("Đang gửi message đến RabbitMQ: ", message);
-    // await channelWrapper?.sendToQueue(
-    //   "task-queue-okela",
-    //   Buffer.from(JSON.stringify(message)),
-    //   { persistent: true },
-    // );
-    // console.log("Đã gửi message đến RabbitMQ: ", message);
-    // res.json({
-    //   message: "MQ test route",
-    // });
 
     // producer direct exchange
     const logs = [
@@ -132,6 +112,39 @@ export const HomeController = {
 
     res.json({
       message: "MQ test route",
+    });
+  },
+  testMQOrder: async (req: Request, res: Response) => {
+    // Tạo đơn hàng -> nhiều queue khác nhau sẽ nhận được thông tin đơn hàng này
+    const EX = "order_exchange";
+    const channelWrapper = rabittmq.getOrCreateChannel(
+      "ORDER_CHANNEL_PRODUCER",
+      async (channel: ConfirmChannel) => {
+        await channel.assertExchange(EX, "direct", {
+          durable: true,
+        });
+      },
+    );
+
+    const order = {
+      id: "OD-12345",
+      customerName: "John Doe",
+      items: ["Laptop", "Mouse", "Keyboard"],
+      total: 2000,
+    };
+    const routingKey = "order.created"; // routing key cho exchange fanout, có thể đặt bất kỳ giá trị nào, nhưng không quan trọng vì fanout sẽ gửi đến tất cả các queue đã bind với exchange này
+    channelWrapper?.publish(
+      EX,
+      routingKey,
+      Buffer.from(JSON.stringify(order)),
+      {
+        persistent: true,
+      },
+    );
+    console.log("Đã gửi đơn hàng đến RabbitMQ: ", order);
+
+    res.json({
+      message: "MQ order test route",
     });
   },
 };
