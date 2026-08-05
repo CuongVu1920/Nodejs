@@ -217,6 +217,35 @@ export const HomeController = {
       message: "MQ topic test route",
     });
   },
+  testMQHeaders: async (req: Request, res: Response) => {
+    // Headers exchange sẽ gửi message đến các queue dựa trên header của message
+    const EX = "headers_exchange";
+
+    const channelWrapper = rabittmq.getOrCreateChannel(
+      "NOTIFICATION_CHANNEL_PRODUCER",
+      async (channel: ConfirmChannel) => {
+        await channel.assertExchange(EX, "headers", {
+          durable: true,
+        });
+      },
+    );
+
+    const msg =
+      "[Thông báo]: Mong ban se luon biet on nhung dieu nho be den voi ban, biet on ngay ca nhung kho khan! Ban tot dep vi chinh la ban, va ban xung dang nhan duoc nhung dieu tot dep nhat. Chuc ban mot ngay tuyet voi!";
+
+    console.log("Đã gửi thông báo đến RabbitMQ!");
+    channelWrapper?.publish(EX, "", Buffer.from(msg), {
+      persistent: true,
+      headers: {
+        department: "marketing",
+        location: "hanoi",
+      },
+    });
+
+    res.json({
+      message: "MQ headers test route",
+    });
+  },
 };
 
 // channel.publish nghĩa là gửi message đến exchange, và exchange sẽ dựa vào routing key để quyết định gửi message đến queue nào.

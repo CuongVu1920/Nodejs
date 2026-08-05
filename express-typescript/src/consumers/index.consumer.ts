@@ -7,4 +7,5 @@ dotenv.config();
 // import "./inventory.consumer";
 // import "./news1.consumer";
 // import "./news2.consumer";
-import "./log-topic.consumer";
+// import "./log-topic.consumer";
+import "./notifycation.consumer";
