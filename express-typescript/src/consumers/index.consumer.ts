@@ -5,5 +5,6 @@ dotenv.config();
 // import "./log.consumer";
 // import "./email.consumer";
 // import "./inventory.consumer";
-import "./news1.consumer";
-import "./news2.consumer";
+// import "./news1.consumer";
+// import "./news2.consumer";
+import "./log-topic.consumer";

@@ -170,6 +170,53 @@ export const HomeController = {
       message: "MQ fanout test route",
     });
   },
+  testMQTopic: async (req: Request, res: Response) => {
+    // Topic exchange sẽ gửi message đến các queue dựa trên pattern của routing key
+    const logs = [
+      {
+        key: "asia.mobile.info",
+        message: "This is an info log message from Asia Mobile",
+      },
+      {
+        key: "asia.web.error",
+        message: "This is an error log message from Asia Web",
+      },
+      {
+        key: "asia.mobile.warning",
+        message: "This is a warning log message from Asia Mobile",
+      },
+      {
+        key: "europe.web.info",
+        message: "This is an info log message from Europe Web",
+      },
+    ];
+
+    const EX = "logs_topic_exchange";
+    const channelWrapper = rabittmq.getOrCreateChannel(
+      "LOG_TOPIC_CHANNEL_PRODUCER",
+      async (channel: ConfirmChannel) => {
+        await channel.assertExchange(EX, "topic", {
+          durable: true,
+        });
+      },
+    );
+
+    logs.forEach((log) => {
+      channelWrapper?.publish(
+        EX,
+        log.key, // routing key
+        Buffer.from(JSON.stringify(log)),
+        {
+          persistent: true,
+        },
+      );
+      console.log("Đã gửi log đến RabbitMQ: ", log.message);
+    });
+
+    res.json({
+      message: "MQ topic test route",
+    });
+  },
 };
 
 // channel.publish nghĩa là gửi message đến exchange, và exchange sẽ dựa vào routing key để quyết định gửi message đến queue nào.
