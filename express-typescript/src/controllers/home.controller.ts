@@ -246,6 +246,33 @@ export const HomeController = {
       message: "MQ headers test route",
     });
   },
+  testMQDlx: async (req: Request, res: Response) => {
+    const RETRY_CHANGE = "retry_exchange";
+    // DLX (Dead Letter Exchange) là một cơ chế trong RabbitMQ để xử lý các message không thể được xử lý thành công.
+    // Khi một message bị từ chối (nack) hoặc hết hạn (TTL), nó sẽ được gửi đến một exchange đặc biệt gọi là Dead Letter Exchange (DLX).
+    // DLX sẽ chuyển message này đến một queue đặc biệt gọi là Dead Letter Queue (DLQ) để lưu trữ và phân tích sau.
+
+    const channelWrapper = rabittmq.getOrCreateChannel(
+      "WORK_CHANNEL_PRODUCER",
+      async (channel: ConfirmChannel) => {
+        await channel.assertQueue("work_queue", {
+          durable: true,
+          deadLetterExchange: RETRY_CHANGE, // gửi về exchange retry
+          deadLetterRoutingKey: "retry_key",
+        });
+      },
+    );
+
+    const msg = "Xử lý đơn hàng error: okela heheh";
+
+    channelWrapper?.sendToQueue("work_queue", Buffer.from(msg), {
+      persistent: true,
+    });
+
+    res.json({
+      message: "MQ DLX test route",
+    });
+  },
 };
 
 // channel.publish nghĩa là gửi message đến exchange, và exchange sẽ dựa vào routing key để quyết định gửi message đến queue nào.

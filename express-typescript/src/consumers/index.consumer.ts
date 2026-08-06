@@ -8,4 +8,5 @@ dotenv.config();
 // import "./news1.consumer";
 // import "./news2.consumer";
 // import "./log-topic.consumer";
-import "./notifycation.consumer";
+// import "./notifycation.consumer";
+import "./work.consumer";
