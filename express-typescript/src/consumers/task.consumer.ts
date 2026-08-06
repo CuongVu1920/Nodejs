@@ -56,6 +56,8 @@ taskConsumber.setup().catch((error) => {
  *
  * // nack - nghĩa là xác nhận rằng message đã được xử lý nhưng không thành công và có thể xóa khỏi queue,
  * nếu không nack thì message sẽ vẫn còn trong queue và sẽ được gửi lại cho consumer khác hoặc consumer hiện tại khi nó sẵn sàng nhận message tiếp theo
+ *  - nack - true: gửi lại message cho queue
+ *  - nack - false: xóa message khỏi queue
  *
  * // exclusive queue - nghĩa là queue chỉ có thể được sử dụng bởi 1 connection duy nhất, nếu connection đó bị đóng thì queue sẽ bị xóa
  *

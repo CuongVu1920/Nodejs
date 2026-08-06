@@ -31,15 +31,18 @@ const workConsumer = {
         // 2. Cấu hình queue chính
         await channel.assertQueue(MAIN_QUEUE, {
           durable: true,
-          deadLetterExchange: RETRY_CHANGE, // gửi về exchange retry
+          deadLetterExchange: RETRY_CHANGE, // khi nack -> gửi về retry_exchange
           deadLetterRoutingKey: "retry_key", // gửi về queue chờ
         });
 
-        // 3. Consume message từ queue chính
+        // 3. Consume message từ queue chính giống như kiểu lắng nghe sự kiện
         channel.consume(MAIN_QUEUE, (msg) => {
           if (!msg) return;
 
           const xDeath = msg.properties.headers?.["x-death"];
+          // xDeath là header được RabbitMQ tự động thêm vào khi message bị gửi đến DLX (Dead Letter Exchange).
+          // Nó chứa thông tin về số lần message đã bị dead-lettered, thời gian, và các thông tin khác liên quan đến việc dead-lettering.
+          // Đây là một cách để theo dõi lịch sử của message khi nó bị gửi đến DLX.
           const retryCount = (xDeath ? xDeath[0]?.count : 0) as number;
 
           console.log(
@@ -63,7 +66,7 @@ const workConsumer = {
               console.log(
                 `[Work Consumer] Lỗi xảy ra, sẽ retry lần thứ ${retryCount + 1} sau 10 giây: ${msg.content.toString()}`,
               );
-              channel.nack(msg, false, false); // Gửi message đến queue chờ retry
+              channel.nack(msg, false, false); // Gửi message đến queue chờ retry (DLX) - false nghĩa là không requeue, false thứ 2 nghĩa là không multiple
             } else {
               console.log(
                 `[Work Consumer] Lỗi xảy ra, đã vượt quá số lần retry tối đa (${MAX_RETRIES}). Message sẽ được gửi đến Dead Letter Queue: ${msg.content.toString()}`,
