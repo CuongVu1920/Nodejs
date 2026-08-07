@@ -9,3 +9,42 @@
 giới hạn số lần retry: 3 lần
 
 Nếu sau 3 lần --> vẫn lỗi --> đẩy sang Dead Letter Queue (DLQ) để lưu trữ phân tích sau hoặc xóa bỏ.
+
+# BullMQ
+
+là một thư viện Node.js mạnh mẽ để quản lý hàng đợi công việc (job queues) và xử lý các tác vụ bất đồng bộ. Nó được xây dựng trên Redis và cung cấp các tính năng như:
+
+- Hỗ trợ các loại hàng đợi khác nhau (queues, jobs, workers).
+- Quản lý trạng thái công việc (pending, completed, failed).
+- Hỗ trợ retry tự động cho các công việc thất bại.
+- Hỗ trợ các sự kiện (events) để theo dõi trạng thái công việc.
+
+1. Job Queue (Hàng đợi công việc) - ví dụ: BullMQ sử dụng Redis để lưu trữ các công việc trong hàng đợi. Mỗi công việc được định nghĩa bởi một payload (dữ liệu) và có thể có các thuộc tính như priority, delay, attempts, v.v.
+
+Mục đích: thực thi một tác vụ cụ thể ở nền, thường bởi chính hệ thống của bạn (không giao tiếp giữa nhiều service khác nhau).
+
+Đặc điểm:
+
+- Job có trạng thái vòng đời rõ ràng: waiting, active, completed, failed, delayed.
+- Thường có 1 loại "người tiêu thụ" (worker) duy nhất để xử lý công việc. biết chính xác cách xử lý job đó (vì worker được viết trong cùng codebase, cùng hệ thống)
+- Tập trung vào: retry, delay, priority, concurrency, rate limiting, job events, job progress, job logs.
+- Ví dụ: "Xử lý ảnh này", "Gửi email xác nhận", "Tạo báo cáo hàng ngày", "Chạy job lúc 2h sáng mỗi ngày"
+- Sau khi job hoàn thành, nó kết thúc luôn - không có khái niệm "nhiều consumer đều nhận được job này" (không có pub/sub)
+
+=> Tóm gọn: Job Queue = "làm việc X, báo tôi biết đã xong chưa, nếu lỗi thì thử lại"
+
+2. Message Queue (Hàng đợi tin nhắn) - ví dụ: RabbitMQ, Kafka, SQS, v.v.
+
+Mục đích: giao tiếp giữa nhiều service khác nhau, thường là các service độc lập (microservices) hoặc các hệ thống khác nhau. Service A gửi thông điệp, service B (hoặc C, D...) nhận thông điệp đó và xử lý.
+
+Đặc điểm:
+
+- Tập trung vào việc truyền dữ liệu/sự kiện giữa các hệ thống độc lập, không nhất thiết biết ai sẽ xử lý
+- Có các mô hình phân phối phức tạp hơn:
+  - Pub/Sub: một message có thể được nhiều consumer đều nhận (broadcast)
+  - Routing/Exchange (RabbitMQ): định tuyến message dựa trên các tiêu chí (routing key, topic, fanout)
+  - Partition & Offset (Kafka): dùng để xử lý luồng dữ liệu (streaming) cực lớn, cho phép "replay" lại message cũ
+  - Nhấn mạnh vào: độ tin cậy truyền tải, thứ tự, khả năng mở rộng giữa nhiều service
+  - Ví dụ: "user-registered event" được gửi đi, rồi service Email, service Analytics, service CRM đều lắng nghe event đó và tự xử lý theo cách riêng.
+
+  Tóm gọn: Message Queue = "sự kiện X đã xảy ra, ai quan tâm thì tự lấy mà xử lý"

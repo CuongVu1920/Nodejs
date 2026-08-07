@@ -4,9 +4,16 @@ import { MailData } from "../types/mail.type";
 import { pubSubRedis } from "../utils/redis";
 import { rabbitmqClient } from "../utils/rabbitmq";
 import { ConfirmChannel } from "amqplib";
-const rabittmq = rabbitmqClient.getInstance();
+import { Queue } from "bullmq";
+import IORedis from "ioredis";
 
+const rabittmq = rabbitmqClient.getInstance();
 const pubSubClient = pubSubRedis.getInstance();
+
+const connection = new IORedis();
+const myQueue = new Queue("my-worker", {
+  connection,
+});
 
 export const HomeController = {
   index: async (req: Request, res: Response) => {
@@ -271,6 +278,17 @@ export const HomeController = {
 
     res.json({
       message: "MQ DLX test route",
+    });
+  },
+  testBullMQ: async (req: Request, res: Response) => {
+    myQueue.add("my-first-job", {
+      subject: "Xác nhận đơn hàng",
+      message:
+        "Cảm ơn bạn đã đặt hàng tại cửa hàng của chúng tôi. Chúng tôi sẽ xử lý đơn hàng của bạn trong thời gian sớm nhất.",
+    });
+
+    res.json({
+      message: "BullMQ test route",
     });
   },
 };

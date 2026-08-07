@@ -39,6 +39,7 @@ router.get("/test-mq-fanout", HomeController.testMQFanout);
 router.get("/test-mq-topic", HomeController.testMQTopic);
 router.get("/test-mq-headers", HomeController.testMQHeaders);
 router.get("/test-mq-dlx", HomeController.testMQDlx);
+router.get("/test-bullmq", HomeController.testBullMQ);
 
 router.use("/admin", authMiddleware, adminRouter);
 
