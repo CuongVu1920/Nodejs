@@ -12,11 +12,9 @@ dotenv.config();
 // import "./work.consumer";
 
 import { Worker } from "bullmq";
-import IORedis from "ioredis";
+import { bullmqClient } from "../utils/bullmq";
 
-const connection = new IORedis({
-  maxRetriesPerRequest: null,
-});
+const bullMQ = bullmqClient.getInstance();
 
 const worker = new Worker(
   "my-worker",
@@ -29,7 +27,7 @@ const worker = new Worker(
       job.data.message,
     );
   },
-  { connection },
+  { connection: bullMQ.worker! },
 );
 
 worker.on("completed", (job) => {

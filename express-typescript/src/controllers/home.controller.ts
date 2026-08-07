@@ -5,14 +5,14 @@ import { pubSubRedis } from "../utils/redis";
 import { rabbitmqClient } from "../utils/rabbitmq";
 import { ConfirmChannel } from "amqplib";
 import { Queue } from "bullmq";
-import IORedis from "ioredis";
+import { bullmqClient } from "../utils/bullmq";
 
 const rabittmq = rabbitmqClient.getInstance();
 const pubSubClient = pubSubRedis.getInstance();
 
-const connection = new IORedis();
+const bullmq = bullmqClient.getInstance();
 const myQueue = new Queue("my-worker", {
-  connection,
+  connection: bullmq.queue!,
 });
 
 export const HomeController = {
