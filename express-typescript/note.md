@@ -48,3 +48,18 @@ Mục đích: giao tiếp giữa nhiều service khác nhau, thường là các 
   - Ví dụ: "user-registered event" được gửi đi, rồi service Email, service Analytics, service CRM đều lắng nghe event đó và tự xử lý theo cách riêng.
 
   Tóm gọn: Message Queue = "sự kiện X đã xảy ra, ai quan tâm thì tự lấy mà xử lý"
+
+3. Concurrency Worker (Đa luồng xử lý) - ví dụ: BullMQ Worker, RabbitMQ Consumer
+
+Mục đích: xử lý các công việc hoặc tin nhắn từ hàng đợi một cách song song, tăng hiệu suất và khả năng mở rộng.
+
+Đặc điểm:
+
+- Worker có thể được cấu hình để xử lý nhiều công việc cùng lúc (concurrency), giúp tận dụng tối đa tài nguyên hệ thống.
+- Worker có thể được triển khai trên nhiều instance hoặc máy chủ khác nhau, cho phép mở rộng theo nhu cầu.
+- Worker thường có cơ chế retry, delay, và quản lý trạng thái công việc để đảm bảo rằng các công việc được xử lý một cách đáng tin cậy.
+- Worker có thể lắng nghe các sự kiện từ hàng đợi để thực hiện các hành động cụ thể khi công việc hoàn thành, thất bại, hoặc bị hủy bỏ.
+
+- Ví dụ: Trong BullMQ, bạn có thể tạo một Worker để xử lý các công việc từ một hàng đợi cụ thể, và bạn có thể cấu hình số lượng công việc mà Worker có thể xử lý đồng thời bằng cách sử dụng tùy chọn concurrency.
+
+  Tóm gọn: Concurrency Worker = "tôi sẽ xử lý nhiều job/message cùng lúc, nếu lỗi thì thử lại, nếu xong thì báo lại"

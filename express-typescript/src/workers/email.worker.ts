@@ -10,13 +10,16 @@ type dataSendEmail = {
   to: string;
 };
 
-const handleSendEmailWelcome = (data: dataSendEmail) => {
+const handleSendEmailWelcome = async (data: dataSendEmail) => {
+  await new Promise((resolve) => setTimeout(resolve, 2000));
   console.log(
     `Đã gửi email với subject: ${data.subject} và message: ${data.message} đến ${data.to}`,
   );
 };
 
-const handleSendEmailForgotPassword = (data: dataSendEmail) => {
+const handleSendEmailForgotPassword = async (data: dataSendEmail) => {
+  throw new Error("Lỗi khi gửi email quên mật khẩu");
+  await new Promise((resolve) => setTimeout(resolve, 2000));
   console.log(
     `Đã gửi email quên mật khẩu với subject: ${data.subject} và message: ${data.message} đến ${data.to}`,
   );
@@ -25,26 +28,24 @@ const handleSendEmailForgotPassword = (data: dataSendEmail) => {
 const emailWorker = new Worker(
   QUEUE_NAME.EMAIL,
   async (job) => {
-    console.log(
-      `Worker đang xử lý job ${job.name} với dữ liệu:`,
-      job.data,
-      "và jobId: ",
-      job.id,
-    );
+    console.log(`Worker đang xử lý job ${job.name} với dữ liệu:`, job.data);
     switch (job.name) {
       case JOB_NAME.EMAIL.WELCOME: {
-        handleSendEmailWelcome(job.data);
+        await handleSendEmailWelcome(job.data);
         break;
       }
       case JOB_NAME.EMAIL.FORGOT_PASSWORD: {
-        handleSendEmailForgotPassword(job.data);
+        await handleSendEmailForgotPassword(job.data);
         break;
       }
       default:
         console.log(`Không có job nào để xử lý với tên: ${job.name}`);
     }
   },
-  { connection: bullMQ.worker! },
+  {
+    connection: bullMQ.worker!,
+    concurrency: 10, // Set the concurrency to 10 nghĩa là có thể xử lý 10 job cùng lúc, nếu có nhiều hơn 10 job thì sẽ được xếp hàng chờ.
+  },
 );
 
 emailWorker.on("completed", (job) => {

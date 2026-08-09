@@ -11,8 +11,8 @@ export const RabbitController = {
     //   to: "cuongvudev@gmail.com",
     // });
 
-    const userId = 2;
-    const jobId = `${JOB_NAME.EMAIL.FORGOT_PASSWORD}_${userId}`;
+    // const userId = 2;
+    // const jobId = `${JOB_NAME.EMAIL.FORGOT_PASSWORD}_${userId}`;
     await emailQueue.add(
       JOB_NAME.EMAIL.FORGOT_PASSWORD,
       {
@@ -22,7 +22,9 @@ export const RabbitController = {
         to: "cuongvudev@gmail.com",
       },
       {
-        jobId: jobId, // Set the job ID to ensure uniqueness
+        // jobId: jobId, // Set the job ID to ensure uniqueness
+        removeOnComplete: true, // Automatically remove the job from the queue when completed
+        removeOnFail: 2, // nghĩa là nếu job thất bại thì sẽ được giữ lại trong queue 2 lần trước khi bị xóa khỏi queue, để có thể retry lại job đó.
       },
     );
 
