@@ -7,6 +7,7 @@ import adminRouter from "./admin.route";
 import { validate } from "../middlewares/validate.middleware";
 import { registerSchema } from "../validators/auth.validator";
 import { optionalAuthMiddleware } from "../middlewares/optional-auth.middleware";
+import { RabbitController } from "../controllers/rabbit.controller";
 
 const router: Router = Router();
 
@@ -40,6 +41,7 @@ router.get("/test-mq-topic", HomeController.testMQTopic);
 router.get("/test-mq-headers", HomeController.testMQHeaders);
 router.get("/test-mq-dlx", HomeController.testMQDlx);
 router.get("/test-bullmq", HomeController.testBullMQ);
+router.get("/test-rabbitmq", RabbitController.testRabbitMQ);
 
 router.use("/admin", authMiddleware, adminRouter);
 
