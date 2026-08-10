@@ -87,3 +87,27 @@ Mục đích: cho phép các công việc hoặc tin nhắn được thử lại
 - Ví dụ: Trong BullMQ, bạn có thể cấu hình số lần thử lại và khoảng thời gian giữa các lần thử lại cho một công việc, và nếu công việc thất bại, nó sẽ được tự động thử lại theo cấu hình đã định.
 
 Tóm gọn: Retry job/message = "nếu job/message này lỗi thì thử lại X lần, mỗi lần cách nhau Y giây, nếu vẫn lỗi thì gửi sang DLQ"
+
+6. Job Scheduler (Lập lịch công việc) - ví dụ: BullMQ Repeatable Jobs, RabbitMQ Scheduled Messages
+
+Mục đích: cho phép lập lịch các công việc hoặc tin nhắn để được xử lý vào một thời điểm cụ thể trong tương lai hoặc theo một lịch trình định kỳ.
+
+Đặc điểm:
+
+- Cho phép định nghĩa các công việc hoặc tin nhắn có thể được lập lịch để chạy vào một thời điểm cụ thể hoặc theo một lịch trình định kỳ (ví dụ: hàng ngày, hàng tuần).
+- Thường được sử dụng trong các tình huống như gửi thông báo định kỳ, thực hiện các tác vụ bảo trì, hoặc chạy các báo cáo định kỳ.
+- Ví dụ: Trong BullMQ, bạn có thể tạo các công việc có thể lặp lại (repeatable jobs) với các tùy chọn như cron expressions hoặc interval để xác định lịch trình chạy.
+
+Tóm gọn: Job Scheduler = "tôi sẽ xử lý job này vào lúc X hoặc theo lịch trình Y, nếu lỗi thì thử lại theo retry config"
+
+7. Cronjob (Công việc theo lịch trình) - ví dụ: BullMQ Cron Jobs, RabbitMQ Scheduled Messages
+
+Mục đích: cho phép lập lịch các công việc hoặc tin nhắn để được xử lý vào một thời điểm cụ thể trong tương lai hoặc theo một lịch trình định kỳ, sử dụng cú pháp cron.
+
+Đặc điểm:
+
+- Cho phép định nghĩa các công việc hoặc tin nhắn có thể được lập lịch để chạy vào một thời điểm cụ thể hoặc theo một lịch trình định kỳ, sử dụng cú pháp cron.
+- Thường được sử dụng trong các tình huống như gửi thông báo định kỳ, thực hiện các tác vụ bảo trì, hoặc chạy các báo cáo định kỳ.
+- Ví dụ: Trong BullMQ, bạn có thể tạo các công việc theo lịch trình (cron jobs) với các tùy chọn như cron expressions để xác định lịch trình chạy.
+
+Tóm gọn: Cronjob = "tôi sẽ xử lý job này vào lúc X hoặc theo lịch trình Y (theo cron), nếu lỗi thì thử lại theo retry config"
