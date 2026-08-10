@@ -9,3 +9,5 @@ export const JOB_NAME = {
     FORGOT_PASSWORD: "email_forgot_password",
   },
 };
+
+export const JOB_DELAY = 5000; // Delay the job for 5 seconds before processing

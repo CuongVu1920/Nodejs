@@ -63,3 +63,27 @@ Mục đích: xử lý các công việc hoặc tin nhắn từ hàng đợi m�
 - Ví dụ: Trong BullMQ, bạn có thể tạo một Worker để xử lý các công việc từ một hàng đợi cụ thể, và bạn có thể cấu hình số lượng công việc mà Worker có thể xử lý đồng thời bằng cách sử dụng tùy chọn concurrency.
 
   Tóm gọn: Concurrency Worker = "tôi sẽ xử lý nhiều job/message cùng lúc, nếu lỗi thì thử lại, nếu xong thì báo lại"
+
+4. Delay job/message (Trì hoãn công việc/tin nhắn) - ví dụ: BullMQ Delay, RabbitMQ Delayed Message Exchange
+
+Mục đích: cho phép các công việc hoặc tin nhắn được xử lý sau một khoảng thời gian nhất định, thay vì ngay lập tức.
+
+Đặc điểm:
+
+- Cho phép đặt thời gian trì hoãn (delay) cho các công việc hoặc tin nhắn, giúp kiểm soát thời điểm xử lý.
+- Thường được sử dụng trong các tình huống như retry sau khi thất bại, gửi thông báo sau một khoảng thời gian, hoặc thực hiện các tác vụ định kỳ.
+- Ví dụ: Trong BullMQ, bạn có thể tạo một công việc với tùy chọn delay, và công việc đó sẽ chỉ được xử lý sau khi thời gian trì hoãn đã kết thúc.
+
+Tóm gọn: Delay job/message = "tôi sẽ xử lý job/message này sau X giây, nếu lỗi thì thử lại sau X giây nữa"
+
+5. Retry job/message (Thử lại công việc/tin nhắn) - ví dụ: BullMQ Retry, RabbitMQ Dead Letter Exchange
+
+Mục đích: cho phép các công việc hoặc tin nhắn được thử lại khi gặp lỗi, nhằm tăng khả năng thành công trong việc xử lý.
+
+Đặc điểm:
+
+- Cho phép cấu hình số lần thử lại (retry attempts) và khoảng thời gian giữa các lần thử lại (retry delay).
+- Thường được sử dụng trong các tình huống như xử lý các tác vụ không đáng tin cậy, nơi mà lỗi có thể xảy ra do các yếu tố bên ngoài (ví dụ: mạng, dịch vụ bên thứ ba).
+- Ví dụ: Trong BullMQ, bạn có thể cấu hình số lần thử lại và khoảng thời gian giữa các lần thử lại cho một công việc, và nếu công việc thất bại, nó sẽ được tự động thử lại theo cấu hình đã định.
+
+Tóm gọn: Retry job/message = "nếu job/message này lỗi thì thử lại X lần, mỗi lần cách nhau Y giây, nếu vẫn lỗi thì gửi sang DLQ"

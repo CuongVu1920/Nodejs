@@ -18,6 +18,8 @@ const handleSendEmailWelcome = async (data: dataSendEmail) => {
 };
 
 const handleSendEmailForgotPassword = async (data: dataSendEmail) => {
+  console.log("Xử lý bị lỗi lần");
+
   throw new Error("Lỗi khi gửi email quên mật khẩu");
   await new Promise((resolve) => setTimeout(resolve, 2000));
   console.log(

@@ -41,7 +41,7 @@ router.get("/test-mq-topic", HomeController.testMQTopic);
 router.get("/test-mq-headers", HomeController.testMQHeaders);
 router.get("/test-mq-dlx", HomeController.testMQDlx);
 router.get("/test-bullmq", HomeController.testBullMQ);
-router.get("/test-rabbitmq", RabbitController.testRabbitMQ);
+router.get("/test-bullmq2", RabbitController.testBullMQ2);
 
 router.use("/admin", authMiddleware, adminRouter);
 
