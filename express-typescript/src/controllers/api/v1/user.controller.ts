@@ -1,38 +1,28 @@
 import { Request, Response } from "express";
-import { userService } from "../../services/user.service";
+import { userService } from "../../../services/user.service";
+import { errorResponse, successResponse } from "../../../utils/response";
 
 export const apiUserController = {
   index: async (req: Request, res: Response) => {
     const user = await userService.getUsers(req);
 
-    res.json({
-      message: "User index",
-      data: user,
-    });
+    return successResponse(res, user, "Users retrieved successfully");
   },
   find: async (req: Request, res: Response) => {
     const { id } = req.params;
     const user = await userService.getUserById(Number(id));
 
     if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-      });
+      return errorResponse(res, "User not found", null, 404);
     }
 
-    res.json({
-      message: "User found",
-      data: user,
-    });
+    return successResponse(res, user, "User retrieved successfully");
   },
   create: async (req: Request, res: Response) => {
     const { name, email, password } = req.body;
     const user = await userService.createUser({ name, email, password });
 
-    res.status(201).json({
-      message: "User created",
-      data: user,
-    });
+    return successResponse(res, user, "User created successfully", 201);
   },
   update: async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -47,15 +37,10 @@ export const apiUserController = {
     );
 
     if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-      });
+      return errorResponse(res, "User not found", null, 404);
     }
 
-    res.json({
-      message: "User updated",
-      data: user,
-    });
+    return successResponse(res, user, "User updated successfully");
   },
   delete: async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -63,14 +48,9 @@ export const apiUserController = {
     const user = await userService.deleteUser(Number(id));
 
     if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-      });
+      return errorResponse(res, "User not found", null, 404);
     }
 
-    res.json({
-      message: "User deleted",
-      data: user,
-    });
+    return successResponse(res, user, "User deleted successfully");
   },
 };
