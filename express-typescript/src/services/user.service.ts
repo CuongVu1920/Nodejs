@@ -17,6 +17,7 @@ type SearchQuery = {
   filter: {
     status: string;
   };
+  include: string;
 };
 
 export const userService = {
@@ -27,6 +28,7 @@ export const userService = {
       q = "",
       page = 1,
       limit = 10,
+      include = "",
     } = req.query as unknown as SearchQuery;
     const filters = Object.keys(req.query)
       .filter((key) => key.startsWith("filter["))
@@ -70,6 +72,21 @@ export const userService = {
         Object.assign(where, filters);
       }
 
+      const relations = include
+        .split(",")
+        .filter((value) => value) // filter để loại bỏ các giá trị rỗng
+        .reduce(
+          (acc, cur) => {
+            acc[cur.trim()] = true;
+
+            return acc;
+          },
+          {} as {
+            [key: string]: boolean;
+          },
+        ); // reduce để chuyển đổi mảng thành object với key là tên relation và value là true
+
+      console.log(relations);
       const [users, count] = await Promise.all([
         prisma.user.findMany({
           omit: {
@@ -81,6 +98,7 @@ export const userService = {
           where: where,
           take: Number(limit),
           skip: skip,
+          include: relations,
         }),
         prisma.user.count({
           where,
@@ -92,10 +110,29 @@ export const userService = {
       return false;
     }
   },
-  getUserById: async (id: number) => {
+  getUserById: async (id: number, req: Request) => {
+    const { include = "" } = req.query as unknown as {
+      include: string;
+    };
+
+    const relations = include
+      .split(",")
+      .filter((value) => value) // filter để loại bỏ các giá trị rỗng
+      .reduce(
+        (acc, cur) => {
+          acc[cur.trim()] = true;
+
+          return acc;
+        },
+        {} as {
+          [key: string]: boolean;
+        },
+      ); // reduce để chuyển đổi mảng thành object với key là tên relation và value là true
+
     try {
       const user = await prisma.user.findUnique({
         where: { id },
+        include: relations,
       });
       return user;
     } catch {

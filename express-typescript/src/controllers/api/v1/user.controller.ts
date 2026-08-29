@@ -13,16 +13,17 @@ export const apiUserController = {
         page: page,
       });
     }
+
+    return errorResponse(res, "Get list users failed", "Server error", 500);
   },
   find: async (req: Request, res: Response) => {
     const { id } = req.params;
-    const user = await userService.getUserById(Number(id));
+    const user = await userService.getUserById(Number(id), req);
 
     if (!user) {
       return errorResponse(res, "User not found", null);
     }
 
-    return successResponse(res, user, "User retrieved successfully");
     return successResponse(res, user, "User retrieved successfully");
   },
   create: async (req: Request, res: Response) => {
@@ -48,7 +49,6 @@ export const apiUserController = {
     }
 
     return successResponse(res, user, "User updated successfully");
-    return successResponse(res, user, "User updated successfully");
   },
   delete: async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -59,7 +59,6 @@ export const apiUserController = {
       return errorResponse(res, "User not found", null);
     }
 
-    return successResponse(res, user, "User deleted successfully");
     return successResponse(res, user, "User deleted successfully");
   },
 };

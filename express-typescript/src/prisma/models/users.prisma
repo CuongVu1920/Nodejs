@@ -7,6 +7,7 @@ model User {
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamp()
   status    Boolean  @default(true)
   posts     Post[]
+  phone     Phone?
 
   @@map("users")
 }
