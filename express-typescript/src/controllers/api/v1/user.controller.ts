@@ -23,6 +23,7 @@ export const apiUserController = {
     }
 
     return successResponse(res, user, "User retrieved successfully");
+    return successResponse(res, user, "User retrieved successfully");
   },
   create: async (req: Request, res: Response) => {
     const { name, email, password } = req.body;
@@ -47,6 +48,7 @@ export const apiUserController = {
     }
 
     return successResponse(res, user, "User updated successfully");
+    return successResponse(res, user, "User updated successfully");
   },
   delete: async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -57,6 +59,7 @@ export const apiUserController = {
       return errorResponse(res, "User not found", null);
     }
 
+    return successResponse(res, user, "User deleted successfully");
     return successResponse(res, user, "User deleted successfully");
   },
 };
