@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { userService } from "../../services/user.service";
-import { errorResponse, successResponse } from "../../utils/response";
+import { userService } from "../../../services/user.service";
+import { errorResponse, successResponse } from "../../../utils/response";
 
 export const apiUserController = {
   index: async (req: Request, res: Response) => {

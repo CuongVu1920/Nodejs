@@ -3,6 +3,7 @@ import { prisma } from "../libs/prisma";
 import { hashPassword } from "../utils/hash";
 import { cacheService } from "./cache.service";
 import { CACHE } from "../constants/cache.constant";
+import { UserWhereInput } from "../generated/prisma/models";
 
 type SearchQuery = {
   sort: string;
@@ -10,6 +11,12 @@ type SearchQuery = {
   q: string;
   page: number;
   limit: number;
+  status: string;
+  email: string;
+  email_like: string;
+  filter: {
+    status: string;
+  };
 };
 
 export const userService = {
@@ -21,9 +28,30 @@ export const userService = {
       page = 1,
       limit = 10,
     } = req.query as unknown as SearchQuery;
+    const filters = Object.keys(req.query)
+      .filter((key) => key.startsWith("filter["))
+      .reduce(
+        (obj, key) => {
+          const field = key.match(/\[(.*?)\]/)?.[1];
+
+          if (field) {
+            if (field === "status") {
+              obj[field] = req.query[`filter[${field}]`] === "true";
+            } else {
+              obj[field] = req.query[`filter[${field}]`] as string;
+            }
+          }
+
+          return obj;
+        },
+        {} as {
+          [key: string]: string | boolean;
+        },
+      );
+
     try {
       const skip = (page - 1) * limit;
-      const where = {
+      const where: UserWhereInput = {
         OR: [
           {
             name: {
@@ -37,6 +65,11 @@ export const userService = {
           },
         ],
       };
+
+      if (Object.keys(filters).length) {
+        Object.assign(where, filters);
+      }
+
       const [users, count] = await Promise.all([
         prisma.user.findMany({
           omit: {

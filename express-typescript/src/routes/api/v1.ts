@@ -1,9 +1,9 @@
 import { loginSchema, registerSchema } from "../../validators/auth.validator";
 import { Router } from "express";
-import { apiAuthController } from "../../controllers/api/auth.controller";
-import { apiUserController } from "../../controllers/api/user.controller";
 import { authMiddleware } from "../../middlewares/auth.middleware";
 import { validate } from "../../middlewares/validate.middleware";
+import { apiAuthController } from "../../controllers/api/v1/auth.controller";
+import { apiUserController } from "../../controllers/api/v1/user.controller";
 
 const router: Router = Router();
 

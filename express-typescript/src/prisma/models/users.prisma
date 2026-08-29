@@ -1,11 +1,12 @@
 model User {
-  id          Int      @id @default(autoincrement())
-  name        String
-  email       String   @unique
-  password    String
-  createdAt   DateTime @default(now()) @db.Timestamp      @map("created_at")
-  updatedAt   DateTime @updatedAt      @db.Timestamp()    @map("updated_at")
-  posts Post[]
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamp()
+  status    Boolean  @default(true)
+  posts     Post[]
 
   @@map("users")
 }
