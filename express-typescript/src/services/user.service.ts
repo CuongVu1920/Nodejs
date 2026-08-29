@@ -1,38 +1,73 @@
 import { Request } from "express";
-import crypto from "crypto";
 import { prisma } from "../libs/prisma";
 import { hashPassword } from "../utils/hash";
 import { cacheService } from "./cache.service";
 import { CACHE } from "../constants/cache.constant";
 
+type SearchQuery = {
+  sort: string;
+  order: string;
+  q: string;
+  page: number;
+  limit: number;
+};
+
 export const userService = {
   getUsers: async (req: Request) => {
-    const { page = 1, limit = 3, ...filter } = req.query;
+    const {
+      sort = "id",
+      order = "asc",
+      q = "",
+      page = 1,
+      limit = 10,
+    } = req.query as unknown as SearchQuery;
+    try {
+      const skip = (page - 1) * limit;
+      const where = {
+        OR: [
+          {
+            name: {
+              contains: q,
+            },
+          },
+          {
+            email: {
+              contains: q,
+            },
+          },
+        ],
+      };
+      const [users, count] = await Promise.all([
+        prisma.user.findMany({
+          omit: {
+            password: true,
+          },
+          orderBy: {
+            [sort as string]: order,
+          },
+          where: where,
+          take: Number(limit),
+          skip: skip,
+        }),
+        prisma.user.count({
+          where,
+        }),
+      ]);
 
-    let hashFilters = "";
-
-    if (Object.keys(filter).length > 0) {
-      hashFilters = crypto
-        .createHash("md5")
-        .update(JSON.stringify(filter))
-        .digest("hex");
+      return { users, count, page };
+    } catch {
+      return false;
     }
-
-    return cacheService.getOrSetWithTag(
-      CACHE.USER._KEY.LIST(limit as number, page as number, hashFilters),
-      () => prisma.user.findMany({}),
-      CACHE.USER.TAGS.LIST(),
-    );
   },
   getUserById: async (id: number) => {
-    return cacheService.getOrSetWithTag(
-      CACHE.USER._KEY.DETAIL(id),
-      () =>
-        prisma.user.findUnique({
-          where: { id },
-        }),
-      CACHE.USER.TAGS.DETAIL(id.toString()),
-    );
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id },
+      });
+      return user;
+    } catch {
+      return false;
+    }
   },
   createUser: async (data: {
     name: string;

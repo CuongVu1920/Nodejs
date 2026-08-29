@@ -4,9 +4,15 @@ import { errorResponse, successResponse } from "../../utils/response";
 
 export const apiUserController = {
   index: async (req: Request, res: Response) => {
-    const user = await userService.getUsers(req);
+    const data = await userService.getUsers(req);
 
-    return successResponse(res, user, "Users retrieved successfully");
+    if (data) {
+      const { users, count, page } = data;
+      return successResponse(res, users, "Users retrieved successfully", 200, {
+        total: count,
+        page: page,
+      });
+    }
   },
   find: async (req: Request, res: Response) => {
     const { id } = req.params;
