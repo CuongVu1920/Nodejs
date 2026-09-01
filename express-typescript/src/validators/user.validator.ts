@@ -21,3 +21,31 @@ export const createUserSchema = z.object({
     phone: z.string().optional(),
   }),
 });
+
+export const updateUserSchema = z.object({
+  body: z.object({
+    name: z
+      .string()
+      .min(1, {
+        message: "Name is required",
+      })
+      .optional(),
+    email: z
+      .string()
+      .min(1, {
+        message: "Email is required",
+      })
+      .pipe(
+        z.email({
+          message: "Email is invalid",
+        }),
+      )
+      .optional(),
+    phone: z.string().optional(),
+  }),
+  params: z.object({
+    id: z.string().min(1, {
+      message: "User ID is required",
+    }),
+  }),
+});

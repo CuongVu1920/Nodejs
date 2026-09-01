@@ -38,12 +38,12 @@ export const apiUserController = {
   },
   update: async (req: Request, res: Response) => {
     const { id } = req.params;
-    const { name, email } = req.body;
-
+    const { name, email, phone } = req.body;
     const user = await userService.updateUser(
       {
         name: name,
         email: email,
+        ...(phone && { phone: phone }),
       },
       Number(id),
     );

@@ -3,7 +3,11 @@ import { prisma } from "../libs/prisma";
 import { hashPassword } from "../utils/hash";
 import { cacheService } from "./cache.service";
 import { CACHE } from "../constants/cache.constant";
-import { UserCreateInput, UserWhereInput } from "../generated/prisma/models";
+import {
+  UserCreateInput,
+  UserUpdateInput,
+  UserWhereInput,
+} from "../generated/prisma/models";
 
 type SearchQuery = {
   sort: string;
@@ -170,7 +174,10 @@ export const userService = {
     // await cacheService.invalidateTags(CACHE.USER.TAGS.ROOT());
     return user;
   },
-  updateUser: async (data: { name: string; email: string }, id: number) => {
+  updateUser: async (
+    data: { name: string; email: string; phone?: string },
+    id: number,
+  ) => {
     // const user = await prisma.user.update({
     //   where: { id },
     //   data: {
@@ -186,33 +193,66 @@ export const userService = {
 
     // return user;
 
-    const user = await cacheService.writeThrought(
-      CACHE.USER._KEY.DETAIL(id),
-      async () => {
-        return prisma.user.update({
-          where: { id },
-          data: data,
-        });
-      },
-    );
+    try {
+      const { phone, ...userData } = data;
+      const dataUpdate: UserUpdateInput = {
+        ...userData,
+      };
 
-    if (user) {
-      await cacheService.invalidateTags(CACHE.USER.TAGS.DETAIL(id.toString()));
-      await cacheService.invalidateTags(CACHE.USER.TAGS.LIST());
+      if (phone) {
+        dataUpdate.phone = {
+          upsert: {
+            create: {
+              number: phone,
+            },
+            update: {
+              number: phone,
+            },
+          },
+        };
+      }
+
+      const user = await prisma.user.update({
+        where: { id },
+        include: {
+          phone: true,
+        },
+        data: dataUpdate,
+        omit: {
+          password: true,
+        },
+      });
+
+      return user;
+    } catch {
+      return false;
     }
-
-    return user;
   },
   deleteUser: async (id: number) => {
-    const user = await prisma.user.delete({
-      where: { id },
+    // const user = await prisma.user.delete({
+    //   where: { id },
+    // });
+
+    // if (user) {
+    //   await cacheService.invalidateTags(CACHE.USER.TAGS.DETAIL(id.toString()));
+    //   await cacheService.invalidateTags(CACHE.USER.TAGS.LIST());
+    // }
+
+    // return user;
+    const deletedPhones = await prisma.phone.deleteMany({
+      where: {
+        userId: id,
+      },
     });
 
-    if (user) {
-      await cacheService.invalidateTags(CACHE.USER.TAGS.DETAIL(id.toString()));
-      await cacheService.invalidateTags(CACHE.USER.TAGS.LIST());
+    if (deletedPhones) {
+      const user = await prisma.user.delete({
+        where: { id },
+      });
+
+      return user;
     }
 
-    return user;
+    return false;
   },
 };
