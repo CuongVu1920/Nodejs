@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { ZodError, ZodObject } from "zod";
 import { ParsedQs } from "qs";
 import { ParamsDictionary } from "express-serve-static-core";
+import { errorResponse } from "../utils/response";
 
 export const validate =
   (schema: ZodObject) =>
@@ -27,14 +28,15 @@ export const validate =
     } catch (error) {
       if (error instanceof ZodError) {
         if (req.baseUrl.startsWith("/api")) {
-          return res.status(400).json({
-            status: "error",
-            message: "Validation failed",
-            errors: error.issues.map((err) => ({
+          return errorResponse(
+            res,
+            "Validation error",
+            error.issues.map((err) => ({
               path: err.path[1],
               message: err.message,
             })),
-          });
+            400,
+          );
         }
 
         // Object.fromEntries sẽ chuyển mảng các cặp [key, value] thành một object, trong đó key là đường dẫn của lỗi và value là thông báo lỗi tương ứng.
@@ -55,9 +57,6 @@ export const validate =
         throw new Error((error as Error).message);
       }
 
-      return res.status(500).json({
-        status: "error",
-        message: "Internal server error",
-      });
+      return errorResponse(res, "Server error", {}, 500);
     }
   };

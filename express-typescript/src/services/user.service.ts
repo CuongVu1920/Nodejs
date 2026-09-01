@@ -3,7 +3,7 @@ import { prisma } from "../libs/prisma";
 import { hashPassword } from "../utils/hash";
 import { cacheService } from "./cache.service";
 import { CACHE } from "../constants/cache.constant";
-import { UserWhereInput } from "../generated/prisma/models";
+import { UserCreateInput, UserWhereInput } from "../generated/prisma/models";
 
 type SearchQuery = {
   sort: string;
@@ -143,19 +143,31 @@ export const userService = {
     name: string;
     email: string;
     password: string;
+    phone?: string;
   }) => {
+    const { phone, ...userData } = data;
+    const dataInsert: UserCreateInput = {
+      ...userData,
+      password: hashPassword(data.password),
+    };
+
+    if (phone) {
+      dataInsert.phone = {
+        create: {
+          number: phone,
+        },
+      };
+    }
+
     const user = await prisma.user.create({
-      data: {
-        ...data,
-        password: hashPassword(data.password),
-      },
+      data: dataInsert,
     });
 
     if (!user) {
       return null;
     }
 
-    await cacheService.invalidateTags(CACHE.USER.TAGS.ROOT());
+    // await cacheService.invalidateTags(CACHE.USER.TAGS.ROOT());
     return user;
   },
   updateUser: async (data: { name: string; email: string }, id: number) => {

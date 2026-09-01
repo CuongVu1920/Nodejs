@@ -1,14 +1,23 @@
 import * as z from "zod";
 
-export const userSchema = z.object({
-    body: z.object({
-        name: z.string()
-                .min(1, 'Name must be at least 1 character long'),
-        email: z.string()
-                .min(1, 'Email is required')
-                .pipe(z.email('Invalid email format')),
+export const createUserSchema = z.object({
+  body: z.object({
+    name: z.string().min(1, {
+      message: "Name is required",
     }),
-    query: z.object({
-        s: z.string().optional()
+    email: z
+      .string()
+      .min(1, {
+        message: "Email is required",
+      })
+      .pipe(
+        z.email({
+          message: "Email is invalid",
+        }),
+      ),
+    password: z.string().min(6, {
+      message: "Password must be at least 6 characters",
     }),
+    phone: z.string().optional(),
+  }),
 });

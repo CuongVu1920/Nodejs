@@ -27,8 +27,12 @@ export const apiUserController = {
     return successResponse(res, user, "User retrieved successfully");
   },
   create: async (req: Request, res: Response) => {
-    const { name, email, password } = req.body;
-    const user = await userService.createUser({ name, email, password });
+    const { name, email, password, phone } = req.body;
+    const user = await userService.createUser({ name, email, password, phone });
+
+    if (!user) {
+      return errorResponse(res, "User creation failed", null);
+    }
 
     return successResponse(res, user, "User created successfully");
   },
